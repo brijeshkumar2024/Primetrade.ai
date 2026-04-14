@@ -1,0 +1,17 @@
+# Development guides (internal only)
+00_START_HERE.md
+HUMANIZATION_GUIDE.md
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

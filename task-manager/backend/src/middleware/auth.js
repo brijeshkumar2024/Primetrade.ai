@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const auth = (req, res, next) => {
+  // extract token from Bearer scheme
   const token = req.headers.authorization?.split(' ')[1];
   
   if (!token) {
@@ -12,6 +13,7 @@ const auth = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
+    // token expired or signature invalid
     res.status(401).json({ message: 'Invalid token' });
   }
 };

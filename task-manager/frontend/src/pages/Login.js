@@ -19,6 +19,7 @@ function Login({ onLogin }) {
       const response = await loginUser(email, password);
       const { user, token } = response.data;
       
+      // save token and user info
       onLogin(user, token);
       navigate('/dashboard');
     } catch (err) {

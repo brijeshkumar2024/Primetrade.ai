@@ -8,15 +8,15 @@ const connectDB = require('./config/db');
 
 const app = express();
 
-// middleware
+// setup middleware
 app.use(express.json());
 app.use(cors());
 
-// routes
+// api routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/tasks', taskRoutes);
 
-// basic healthcheck
+// health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });

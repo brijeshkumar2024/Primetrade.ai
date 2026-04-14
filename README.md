@@ -1,14 +1,14 @@
 # Task Manager App
 
-A simple task management application with user authentication built with Node.js and React.
+A full-stack web app for managing tasks. Users can sign up, log in, and create/update/delete their tasks.
 
 ## Overview
 
-This project is a full-stack web application that allows users to:
-- Register and login with JWT authentication
-- Create, read, update, and delete tasks
+This is a task management app built with Node.js + React. It includes:
+- User registration and login (JWT authentication)
+- Create, read, update, delete tasks
 - Mark tasks as complete
-- View their own tasks
+- Each user only sees their own tasks
 
 ## Tech Stack
 
@@ -27,14 +27,13 @@ This project is a full-stack web application that allows users to:
 
 ## Features
 
-- **User Authentication:** Register and login with email/password
-- **Role-based Access:** User and admin roles (basic setup, can be extended)
-- **Task Management:** Full CRUD operations for tasks
-- **JWT Tokens:** Secure API endpoints with token verification
-- **Clean Architecture:** Modular backend design with controllers, routes, and middleware
-- **Simple UI:** Minimalist frontend for easy task management
-
-Focused on clean architecture, modular backend design, and realistic production practices rather than over-engineered solutions.
+- User registration and login with JWT authentication
+- Create, update, and delete tasks
+- Each user only sees their own tasks
+- Basic admin role (can list all tasks)
+- Password hashing with bcryptjs
+- Token-based authorization on protected routes
+- Simple, clean backend structure (controllers, models, routes)
 
 ## Folder Structure
 
@@ -85,7 +84,8 @@ task-manager/
 │   │   ├── index.js
 │   │   └── index.css
 │   ├── package.json
-│   └── .env
+│   └── .gitignore
+├── .env.example
 └── README.md
 ```
 
@@ -177,11 +177,13 @@ The collection already includes the basic headers and example JSON bodies, so it
 
 ## Security
 
-The backend uses a few basic security steps:
-- Passwords are hashed with bcrypt before saving
-- JWT is used for login and protected routes
-- Task routes check the token before doing anything
-- Validation is kept simple so bad input gets rejected early
+Some basic security stuff I added:
+- Passwords get hashed with bcrypt (10 rounds) before saving
+- JWT tokens for authentication on protected endpoints
+- Validators for email and password format
+- Tasks are filtered by user ID so you can't see other people's tasks
+
+Not production-ready yet, but solid for a learning project.
 
 ## Scalability Notes
 
@@ -227,26 +229,25 @@ curl -X POST http://localhost:5000/api/v1/tasks \
 
 ## Notes
 
-- Data now goes into MongoDB, so it stays after restarts
-- Validation is basic. For production, use comprehensive validation libraries
-- Add environment-specific configs for production
-- Update JWT_SECRET in production
-- CORS is enabled for localhost:3000 only in production, restrict further
+- Data persists in MongoDB (no more losing everything on restart)
+- Validation is pretty basic—for real projects you'd use something more strict
+- Need to set a good JWT_SECRET in production
+- CORS is set up for the frontend locally
 
 ## Future Improvements
 
-- Add MongoDB
-- Add email verification
-- Add refresh tokens
-- Implement more granular role-based access
-- Add task categories/tags
-- Add notifications
-- Add unit tests
+- Add pagination for large task lists
+- Add email verification on signup
+- Refresh tokens for better security
+- More granular permissions
+- Task categories or tags
+- Search functionality
+- Unit tests and integration tests
 
 ## Limitations
 
-- Data is stored in MongoDB, but there is still no pagination on task lists
-- Validation is basic and could be tightened up more
-- No refresh tokens yet
-- No API rate limiting yet
-- Frontend is intentionally simple, so it does the job but nothing fancy
+- No pagination on task lists yet
+- Validation is basic
+- No refresh tokens (just one token for 24 hours)
+- No rate limiting on the API
+- Frontend is simple (intentionally)

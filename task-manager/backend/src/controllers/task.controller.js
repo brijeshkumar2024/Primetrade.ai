@@ -4,13 +4,14 @@ const mongoose = require('mongoose');
 const getTasks = async (req, res) => {
   try {
     const userId = req.user.id;
-    const userTasks = await Task.find({ user: userId }).sort({ createdAt: -1 });
+    // TODO: add pagination here for large task lists
+    const tasks = await Task.find({ user: userId }).sort({ createdAt: -1 });
 
     res.json({
-      tasks: userTasks,
+      tasks,
     });
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching tasks', error: err.message });
+    res.status(500).json({ message: 'Failed to retrieve tasks', error: err.message });
   }
 };
 
@@ -19,22 +20,22 @@ const createTask = async (req, res) => {
     const userId = req.user.id;
     const { title, description } = req.body;
 
-    if (!title) {
-      return res.status(400).json({ message: 'Title is required' });
+    if (!title || !title.trim()) {
+      return res.status(400).json({ message: 'Task needs a title' });
     }
 
-    const newTask = await Task.create({
+    const task = await Task.create({
       user: userId,
       title: title.trim(),
       description: description ? description.trim() : '',
     });
 
     res.status(201).json({
-      message: 'Task created',
-      task: newTask,
+      message: 'Task created successfully',
+      task,
     });
   } catch (err) {
-    res.status(500).json({ message: 'Error creating task', error: err.message });
+    res.status(500).json({ message: 'Could not create task', error: err.message });
   }
 };
 
@@ -60,61 +61,60 @@ const getTaskById = async (req, res) => {
 
 const updateTask = async (req, res) => {
   try {
-    const taskId = req.params.id;
+    const { id } = req.params;
 
-    if (!mongoose.isValidObjectId(taskId)) {
-      return res.status(400).json({ message: 'Invalid task id' });
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid task ID' });
     }
 
-    const task = await Task.findOne({ _id: taskId, user: req.user.id });
-
+    const task = await Task.findOne({ _id: id, user: req.user.id });
     if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
+      return res.status(404).json({ message: 'Task not found or access denied' });
     }
 
     const { title, description, completed } = req.body;
-    const updateData = {};
+    const updates = {};
 
-    if (title !== undefined) updateData.title = title.trim();
-    if (description !== undefined) updateData.description = description.trim();
-    if (completed !== undefined) updateData.completed = completed;
+    // only update fields that were provided
+    if (title !== undefined) updates.title = title.trim();
+    if (description !== undefined) updates.description = description.trim();
+    if (completed !== undefined) updates.completed = completed;
 
     const updated = await Task.findOneAndUpdate(
-      { _id: taskId, user: req.user.id },
-      updateData,
+      { _id: id, user: req.user.id },
+      updates,
       { new: true }
     );
 
     res.json({
-      message: 'Task updated',
+      message: 'Task updated successfully',
       task: updated,
     });
   } catch (err) {
-    res.status(500).json({ message: 'Error updating task', error: err.message });
+    res.status(500).json({ message: 'Failed to update task', error: err.message });
   }
 };
 
 const deleteTask = async (req, res) => {
   try {
-    const taskId = req.params.id;
+    const { id } = req.params;
 
-    if (!mongoose.isValidObjectId(taskId)) {
-      return res.status(400).json({ message: 'Invalid task id' });
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid task ID' });
     }
 
-    const task = await Task.findOne({ _id: taskId, user: req.user.id });
-
+    const task = await Task.findOne({ _id: id, user: req.user.id });
     if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
+      return res.status(404).json({ message: 'Task not found or no permission' });
     }
 
-    await Task.findByIdAndDelete(taskId);
+    await Task.findByIdAndDelete(id);
 
     res.json({
       message: 'Task deleted',
     });
   } catch (err) {
-    res.status(500).json({ message: 'Error deleting task', error: err.message });
+    res.status(500).json({ message: 'Could not delete task', error: err.message });
   }
 };
 
